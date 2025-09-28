@@ -1,8 +1,13 @@
+import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 
 export default function MessageList() {
     const messages = useSelector((state) => state.chat.messages);
+    const endRef = useRef(null);
 
+    useEffect(() => {
+        endRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
     return (
         <div className="space-y-2">
             {messages.map((msg, i) => (
@@ -21,6 +26,7 @@ export default function MessageList() {
                     {msg.text}
                 </div>
             ))}
+            <div ref={endRef} />
         </div>
     );
 }

@@ -4,9 +4,9 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   questions: [],       // [{id, text, difficulty, duration}]
   currentIndex: 0,
-  answers: {},         // {id: "user answer"}
+  answers: {},    // {id: "user answer"}
   timer: 0,
-  status: "idle",      // idle | running | finished
+  status: "idle", // idle | running | finished
   score: null,
   summary: null,
 };
@@ -35,15 +35,29 @@ const interviewSlice = createSlice({
     },
     tick(state) {
       if (state.status !== "running") return;
+
       if (state.timer > 0) {
         state.timer -= 1;
       } else {
-        // auto-submit when time ends
+        const q = state.questions[state.currentIndex];
+        // Auto-submit empty if user didn’t answer
+        if (q && !state.answers[q.id]) {
+          state.answers[q.id] = "(no answer)";
+        }
+
         state.currentIndex += 1;
+
         if (state.currentIndex < state.questions.length) {
           state.timer = state.questions[state.currentIndex].duration;
         } else {
           state.status = "finished";
+          // calculate final score + summary here
+          let score = 0;
+          for (let id in state.answers) {
+            if (state.answers[id] && state.answers[id].length > 10) score += 10;
+          }
+          state.score = score;
+          state.summary = `Candidate answered ${Object.keys(state.answers).length} questions. Total score: ${score}.`;
         }
       }
     },
@@ -57,11 +71,12 @@ const interviewSlice = createSlice({
         state.timer = state.questions[state.currentIndex].duration;
       } else {
         state.status = "finished";
+        state.timer = 0;
       }
     },
+
     finishInterview(state) {
       state.status = "finished";
-      // dummy scoring logic (AI can be added here)
       let score = 0;
       for (let id in state.answers) {
         if (state.answers[id] && state.answers[id].length > 10) score += 10;
@@ -72,12 +87,7 @@ const interviewSlice = createSlice({
   },
 });
 
-export const {
-  startInterview,
-  tick,
-  submitAnswer,
-  nextQuestion,
-  finishInterview,
-} = interviewSlice.actions;
+export const { startInterview, tick, submitAnswer, nextQuestion, finishInterview } =
+  interviewSlice.actions;
 
 export default interviewSlice.reducer;

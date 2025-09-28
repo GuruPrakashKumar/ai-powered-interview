@@ -1,7 +1,10 @@
+// MessageInput.jsx
 import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessage, fillMissingField } from "./chatSlice";
 import { nextQuestion, submitAnswer, startInterview } from "../interview/interviewSlice";
+
+export const inputRef = { current: "", clear: () => {} };
 
 function validateField(field, value) {
   if (field === "email") {
@@ -13,7 +16,6 @@ function validateField(field, value) {
     return phoneRe.test(value.replace(/[\s-()]/g, ""));
   }
   if (field === "name") {
-    // at least two words (first and last)
     return value.trim().split(/\s+/).length >= 2;
   }
   return true;
@@ -29,17 +31,24 @@ export default function MessageInput() {
   const resumeUploaded = useSelector((state) => state.chat.candidate.resumeUploaded);
   const currentMissing = missingFields && missingFields.length > 0 ? missingFields[0] : null;
 
-  
+  // keep ref updated
+  useEffect(() => {
+    inputRef.current = input;
+    inputRef.clear = () => setInput("");
+  }, [input]);
+
   const handleSend = () => {
     const raw = input.trim();
     if (!raw) return;
 
     if (currentMissing) {
       if (!validateField(currentMissing, raw)) {
-        dispatch(addMessage({
-          sender: "system",
-          text: `That doesn't look like a valid ${currentMissing}. Please try again.`
-        }));
+        dispatch(
+          addMessage({
+            sender: "system",
+            text: `That doesn't look like a valid ${currentMissing}. Please try again.`,
+          })
+        );
         setInput("");
         return;
       }
@@ -50,32 +59,32 @@ export default function MessageInput() {
       // Check if this was the last missing field → start interview
       const nextMissing = missingFields.slice(1); // after current is filled
       if (resumeUploaded && nextMissing.length === 0) {
-        dispatch(addMessage({
-          sender: "system",
-          text: "✅ Profile completed! Starting your interview now..."
-        }));
+        dispatch(
+          addMessage({
+            sender: "system",
+            text: "✅ Profile completed! Starting your interview now...",
+          })
+        );
         dispatch(startInterview());
       }
       return;
     }
 
-    console.log('interviewStarted', interviewStarted);
     if (interviewStarted) {
       const q = interview.questions[interview.currentIndex];
       if (q) {
-        console.log("in message input submitting answer line 68")
         dispatch(addMessage({ sender: "user", text: raw }));
         dispatch(submitAnswer({ questionId: q.id, answer: raw }));
         dispatch(nextQuestion());
       }
       setInput("");
       return;
-    } else {
-      setTimeout(() => {
-        dispatch(addMessage({ sender: "ai", text: "AI reply (placeholder)..." }));
-      }, 800);
     }
-    // normal flow
+
+    setTimeout(() => {
+      dispatch(addMessage({ sender: "ai", text: "AI reply (placeholder)..." }));
+    }, 800);
+
     dispatch(addMessage({ sender: "user", text: raw }));
     setInput("");
   };
@@ -85,7 +94,9 @@ export default function MessageInput() {
       <input
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder={currentMissing ? `Enter your ${currentMissing}` : "Type your answer..."}
+        placeholder={
+          currentMissing ? `Enter your ${currentMissing}` : "Type your answer..."
+        }
         className="flex-1 border rounded-md px-3 py-2"
       />
       <button

@@ -1,11 +1,14 @@
+// InterviewOrchestrator.jsx
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   startInterview,
   tick,
   nextQuestion,
+  submitAnswer,
 } from "./interviewSlice";
 import { addMessage } from "../chat/chatSlice";
+import { inputRef } from "../chat/MessageInput";
 
 export default function InterviewOrchestrator() {
   const dispatch = useDispatch();
@@ -40,18 +43,28 @@ export default function InterviewOrchestrator() {
     return () => clearInterval(id);
   }, [status, dispatch]);
 
-  // 3) When timer goes to zero -> post time's up once and move to next question
+  // 3) Auto-submit on timer expiry
   useEffect(() => {
     if (status !== "running") return;
-
-    // Only act at the moment timer transitions to 0 (avoid repeats)
     if (timer === 0 && prevTimerRef.current !== 0) {
-      dispatch(addMessage({ sender: "system", text: "⏰ Time’s up! Moving on…" }));
+      const q = questions[currentIndex];
+      if (q) {
+        const typed = inputRef.current?.trim();
+        if (typed) {
+          dispatch(addMessage({ sender: "user", text: typed }));
+          inputRef.current = "";
+          dispatch(submitAnswer({ questionId: q.id, answer: typed }));
+        } else {
+          dispatch(
+            addMessage({ sender: "system", text: "⏰ Time’s up! No answer given." })
+          );
+        }
+        inputRef.clear();
+      }
       dispatch(nextQuestion());
     }
-
     prevTimerRef.current = timer;
-  }, [timer, status, dispatch]);
+  }, [timer, status, dispatch, questions, currentIndex]);
 
   // Helper: check whether a given question (by id/text) is already present in chat
   const questionAlreadyPosted = (q) => {
@@ -79,18 +92,21 @@ export default function InterviewOrchestrator() {
     }
   }, [questions, currentIndex, status, chatMessages, dispatch]);
 
-  // 5) When interview finishes, post summary (only once)
+  // ✅ Post "interview finished" message
   useEffect(() => {
-    if (status !== "finished" || !summary) return;
-
-    const alreadyPostedSummary = chatMessages.some(
+    if (status !== "finished") return;
+    const already = chatMessages.some(
       (m) => m.sender === "system" && m.text.includes("✅ Interview finished")
     );
-    if (!alreadyPostedSummary) {
-      const text = `✅ Interview finished!\nScore: ${score}\n${summary}`;
-      dispatch(addMessage({ sender: "system", text }));
+    if (!already) {
+      dispatch(
+        addMessage({
+          sender: "system",
+          text: "✅ Interview finished! Thanks for participating.",
+        })
+      );
     }
-  }, [status, summary, score, chatMessages, dispatch]);
+  }, [status, chatMessages, dispatch]);
 
-  return null; // invisible orchestrator
+  return null;
 }
