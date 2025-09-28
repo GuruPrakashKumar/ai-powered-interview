@@ -9,10 +9,10 @@ export default function MessageList() {
                 <div
                     key={i}
                     className={`p-2 rounded-md w-fit max-w-xs md:max-w-lg ${msg.sender === "user"
-                            ? "bg-blue-500 text-white ml-auto"
-                            : msg.sender === "system"
-                                ? "bg-gray-300 text-black"
-                                : "bg-green-500 text-white"
+                        ? "bg-blue-500 text-white ml-auto"
+                        : msg.sender === "system"
+                            ? "bg-gray-300 text-black"
+                            : "bg-green-500 text-white"
                         }`}
                 >
                     <div className="font-bold text-xs">

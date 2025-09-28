@@ -45,21 +45,22 @@ const chatSlice = createSlice({
       if (missing.length > 0) {
         const next = missing[0];
         const prompts = {
-          name: "Please type your full name.",
-          email: "Please type your email address.",
-          phone: "Please type your phone number.",
+          name: "Please type your full name1.",
+          email: "Please type your email address1.",
+          phone: "Please type your phone number1.",
         };
         state.messages.push({ sender: "system", text: prompts[next] });
       } else {
         state.messages.push({
           sender: "system",
-          text: "Thanks — all details received. Starting the interview.",
+          text: "Thanks — all details received. Starting the interview1.",
         });
         state.candidate.interviewStarted = true;
       }
     },
 
     fillMissingField: (state, action) => {
+      //field is missing fields from resume
       const { field, value } = action.payload;
       state.candidate[field] = value;
 
@@ -72,27 +73,32 @@ const chatSlice = createSlice({
       if (state.candidate.missingFields.length > 0) {
         const next = state.candidate.missingFields[0];
         const prompts = {
-          name: "Please type your full name.",
-          email: "Please type your email address.",
-          phone: "Please type your phone number.",
+          name: "Please type your full name2.",
+          email: "Please type your email address2.",
+          phone: "Please type your phone number2.",
         };
         state.messages.push({ sender: "system", text: prompts[next] });
       } else {
         state.messages.push({
           sender: "system",
-          text: "Thanks — all details received. Starting the interview.",
+          text: "Thanks — all details received. Starting the interview2.",
         });
         state.candidate.interviewStarted = true;
       }
     },
+    completeCandidateProfile(state) {
+      state.candidate.interviewStarted = true;
+    },
+
   },
 });
 
-export const { 
-  addMessage, 
-  setCandidateData, 
-  uploadResume, 
-  fillMissingField
+export const {
+  addMessage,
+  setCandidateData,
+  uploadResume,
+  fillMissingField,
+  completeCandidateProfile
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

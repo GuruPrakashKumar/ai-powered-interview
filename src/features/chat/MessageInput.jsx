@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessage, fillMissingField } from "./chatSlice";
+import { nextQuestion, submitAnswer, startInterview } from "../interview/interviewSlice";
 
 function validateField(field, value) {
   if (field === "email") {
@@ -24,9 +25,11 @@ export default function MessageInput() {
 
   const missingFields = useSelector((state) => state.chat.candidate.missingFields);
   const interviewStarted = useSelector((state) => state.chat.candidate.interviewStarted);
-
+  const interview = useSelector((state) => state.interview);
+  const resumeUploaded = useSelector((state) => state.chat.candidate.resumeUploaded);
   const currentMissing = missingFields && missingFields.length > 0 ? missingFields[0] : null;
 
+  
   const handleSend = () => {
     const raw = input.trim();
     if (!raw) return;
@@ -44,20 +47,37 @@ export default function MessageInput() {
       dispatch(addMessage({ sender: "user", text: raw }));
       dispatch(fillMissingField({ field: currentMissing, value: raw }));
       setInput("");
+      // Check if this was the last missing field → start interview
+      const nextMissing = missingFields.slice(1); // after current is filled
+      if (resumeUploaded && nextMissing.length === 0) {
+        dispatch(addMessage({
+          sender: "system",
+          text: "✅ Profile completed! Starting your interview now..."
+        }));
+        dispatch(startInterview());
+      }
       return;
     }
 
-    // normal flow
-    dispatch(addMessage({ sender: "user", text: raw }));
-    setInput("");
-
-    if (!interviewStarted) {
-      // do nothing: interview starts automatically in slice
+    console.log('interviewStarted', interviewStarted);
+    if (interviewStarted) {
+      const q = interview.questions[interview.currentIndex];
+      if (q) {
+        console.log("in message input submitting answer line 68")
+        dispatch(addMessage({ sender: "user", text: raw }));
+        dispatch(submitAnswer({ questionId: q.id, answer: raw }));
+        dispatch(nextQuestion());
+      }
+      setInput("");
+      return;
     } else {
       setTimeout(() => {
         dispatch(addMessage({ sender: "ai", text: "AI reply (placeholder)..." }));
       }, 800);
     }
+    // normal flow
+    dispatch(addMessage({ sender: "user", text: raw }));
+    setInput("");
   };
 
   return (
