@@ -34,7 +34,6 @@ const chatSlice = createSlice({
       state.candidate.email = email || null;
       state.candidate.phone = phone || null;
 
-      // figure out missing fields
       const missing = [];
       if (!state.candidate.name) missing.push("name");
       if (!state.candidate.email) missing.push("email");
@@ -45,22 +44,22 @@ const chatSlice = createSlice({
       if (missing.length > 0) {
         const next = missing[0];
         const prompts = {
-          name: "Please type your full name1.",
-          email: "Please type your email address1.",
-          phone: "Please type your phone number1.",
+          name: "Please type your full name.",
+          email: "Please type your email address.",
+          phone: "Please type your phone number.",
         };
         state.messages.push({ sender: "system", text: prompts[next] });
       } else {
         state.messages.push({
           sender: "system",
-          text: "Thanks — all details received. Starting the interview1.",
+          text: "Thanks — all details received. Starting the interview.",
         });
         state.candidate.interviewStarted = true;
       }
     },
 
     fillMissingField: (state, action) => {
-      //field is missing fields from resume
+      //field = missing fields from resume
       const { field, value } = action.payload;
       state.candidate[field] = value;
 
@@ -69,25 +68,27 @@ const chatSlice = createSlice({
         (f) => f !== field
       );
 
-      // next step
       if (state.candidate.missingFields.length > 0) {
         const next = state.candidate.missingFields[0];
         const prompts = {
-          name: "Please type your full name2.",
-          email: "Please type your email address2.",
-          phone: "Please type your phone number2.",
+          name: "Please type your full name.",
+          email: "Please type your email address.",
+          phone: "Please type your phone number.",
         };
         state.messages.push({ sender: "system", text: prompts[next] });
       } else {
         state.messages.push({
           sender: "system",
-          text: "Thanks — all details received. Starting the interview2.",
+          text: "Thanks — all details received. Starting the interview.",
         });
         state.candidate.interviewStarted = true;
       }
     },
     completeCandidateProfile(state) {
       state.candidate.interviewStarted = true;
+    },
+    resetChat: () => {
+      return initialState;
     },
 
   },
@@ -98,7 +99,8 @@ export const {
   setCandidateData,
   uploadResume,
   fillMissingField,
-  completeCandidateProfile
+  completeCandidateProfile,
+  resetChat
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

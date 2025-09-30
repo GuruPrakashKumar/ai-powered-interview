@@ -1,4 +1,3 @@
-// InterviewOrchestrator.jsx
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -24,31 +23,27 @@ export default function InterviewOrchestrator() {
   const candidateData = useSelector((state) => state.chat.candidate);
   const chatMessages = useSelector((state) => state.chat.messages || []);
 
-  // to Keep previous timer to avoid "time's up" effect multiple times
   const prevTimerRef = useRef(timer);
 
-  // 1) Generate questions when profile = complete and interview = idle
   useEffect(() => {
     if (candidateData.interviewStarted && status === "idle" && questions.length === 0) {
       dispatch(generateQuestions());
     }
   }, [candidateData.interviewStarted, status, questions.length, dispatch]);
 
-  // 2) interview start
   useEffect(() => {
     if (candidateData.interviewStarted && status === "idle" && questions.length > 0) {
       dispatch(startInterview());
     }
   }, [candidateData.interviewStarted, status, questions.length, dispatch]);
 
-  // 3) Timer interval (ticks every second while running)
   useEffect(() => {
     if (status !== "running") return;
     const id = setInterval(() => dispatch(tick()), 1000);
     return () => clearInterval(id);
   }, [status, dispatch]);
 
-  // 4) Auto-submit
+  // Auto-submit
   useEffect(() => {
     if (status !== "running") return;
     if (timer === 0 && prevTimerRef.current !== 0) {
@@ -72,7 +67,7 @@ export default function InterviewOrchestrator() {
     prevTimerRef.current = timer;
   }, [timer, status, dispatch, questions, currentIndex]);
 
-  // 5) When interview finishes, generate summary and save candidate
+  // When interview finishes, generate summary and save candidate
   useEffect(() => {
     if (status === "finished" && questions.length > 0 && !saved) {
       
@@ -111,14 +106,13 @@ export default function InterviewOrchestrator() {
           dispatch(
             addMessage({
               sender: "system",
-              text: "✅ Interview completed! Thank you for participating. Your responses have been submitted for review.",
+              text: "Interview completed! Thank you for participating. Your responses have been submitted for review.",
             })
           );
 
         } catch (error) {
           console.error("Error generating summary:", error);
           
-          // Even if summarization fails, mark as saved and use fallback
           dispatch(markAsSaved());
           
           const fallbackScore = calculateFallbackScore(answers);
@@ -135,11 +129,10 @@ export default function InterviewOrchestrator() {
               answers: answers,
               score: fallbackScore,
               summary: fallbackSummary,
-              chatHistory: [...chatMessages], // Save complete chat history
+              chatHistory: [...chatMessages],
             }
           }));
 
-          // Only show completion message, NOT the summary to candidate
           dispatch(
             addMessage({
               sender: "system",
@@ -153,7 +146,7 @@ export default function InterviewOrchestrator() {
     }
   }, [status, questions, answers, saved, dispatch, candidateData, chatMessages]);
 
-  // Helper functions for fallback scoring
+  // fallback scoring
   const calculateFallbackScore = (answers) => {
     let score = 0;
     let totalQuestions = Object.keys(answers).length;
@@ -184,7 +177,6 @@ export default function InterviewOrchestrator() {
     }`;
   };
 
-  // check if question is already present in chat to avoid duplicates
   const questionAlreadyPosted = (q) => {
     if (!q) return false;
     return chatMessages.some(
@@ -194,7 +186,7 @@ export default function InterviewOrchestrator() {
     );
   };
 
-  // 6) When current question changes, push it into chat (only if not already posted)
+  // When current question changes, push it into chat (only if not already posted)
   useEffect(() => {
     if (status !== "running") return;
     const q = questions[currentIndex];
@@ -213,7 +205,7 @@ export default function InterviewOrchestrator() {
   useEffect(() => {
     if (status === "generating") {
       const already = chatMessages.some(
-        (m) => m.sender === "system" && m.text.includes("Generating interview questions")
+        (m) => m.sender === "system" && m.text.includes("I am going to ask you 2 easy, 2 medium and 2 hard questions, you will have 20, 60, 120 seconds to answer respectively")
       );
       if (!already) {
         dispatch(

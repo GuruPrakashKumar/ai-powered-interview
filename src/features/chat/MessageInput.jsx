@@ -1,4 +1,3 @@
-// MessageInput.jsx
 import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessage, fillMissingField } from "./chatSlice";
@@ -31,7 +30,6 @@ export default function MessageInput() {
   const resumeUploaded = useSelector((state) => state.chat.candidate.resumeUploaded);
   const currentMissing = missingFields && missingFields.length > 0 ? missingFields[0] : null;
 
-  // keep ref updated
   useEffect(() => {
     inputRef.current = input;
     inputRef.clear = () => setInput("");
@@ -56,15 +54,8 @@ export default function MessageInput() {
       dispatch(addMessage({ sender: "user", text: raw }));
       dispatch(fillMissingField({ field: currentMissing, value: raw }));
       setInput("");
-      // Check if this was the last missing field → start interview
-      const nextMissing = missingFields.slice(1); // after current is filled
+      const nextMissing = missingFields.slice(1);
       if (resumeUploaded && nextMissing.length === 0) {
-        dispatch(
-          addMessage({
-            sender: "system",
-            text: "✅ Profile completed! Starting your interview now...",
-          })
-        );
         dispatch(startInterview());
       }
       return;

@@ -30,7 +30,6 @@ export default function ResumeUpload() {
           textContent += text.items.map((s) => s.str).join(" ") + " ";
         }
 
-        // extract fields (basic regex)
         const nameMatch = textContent.match(/\b([A-Z][a-z]+(?: [A-Z][a-z]+)+)\b/); // first + last name
         const emailMatch = textContent.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/);
         const phoneMatch = textContent.match(/(\+?\d{1,3}[-.\s]?)?\d{10}\b/);

@@ -1,5 +1,6 @@
 // const GEMINI_API_KEY = "AIzaSyCbwsperyiAP5A0cuTjFIHa4VC0HrVhLDY";
-const GEMINI_API_KEY = "AIzaSyDGE461NYmHTMpdxOUoUNjBj3c47N5WnsA";
+// const GEMINI_API_KEY = "AIzaSyDGE461NYmHTMpdxOUoUNjBj3c47N5WnsA";
+const GEMINI_API_KEY = "AIzaSyBFinEosuflIX5juwVWtAzJkjsEA4doAcE";
 
 async function callGemini(payload) {
     const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";

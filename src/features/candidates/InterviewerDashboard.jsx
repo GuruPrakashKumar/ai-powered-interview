@@ -15,14 +15,12 @@ export default function InterviewerDashboard() {
   const dispatch = useDispatch();
   const { candidates, selectedCandidate, searchTerm, sortBy, sortOrder, showChatHistory } = useSelector(state => state.candidates);
 
-  // Filter and sort candidates
   const filteredAndSortedCandidates = useMemo(() => {
     let filtered = candidates.filter(candidate =>
       candidate.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       candidate.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Sort candidates
     filtered.sort((a, b) => {
       let aValue, bValue;
       
@@ -71,7 +69,6 @@ export default function InterviewerDashboard() {
     }
   };
 
-  // Chat History View
   if (selectedCandidate && showChatHistory) {
     return (
       <div className="max-w-6xl mx-auto p-6">
@@ -133,7 +130,6 @@ export default function InterviewerDashboard() {
     );
   }
 
-  // Candidate Detail View
   if (selectedCandidate && !showChatHistory) {
     return (
       <div className="max-w-6xl mx-auto p-6">
@@ -174,7 +170,6 @@ export default function InterviewerDashboard() {
                 </p>
                 <p><strong className="text-gray-600">Summary:</strong> {selectedCandidate.summary}</p>
                 
-                {/* Chat History Button */}
                 <div className="mt-4">
                   <button
                     onClick={handleToggleChatHistory}
@@ -230,7 +225,6 @@ export default function InterviewerDashboard() {
         <p className="text-gray-600">Review candidate interviews and scores</p>
       </div>
       
-      {/* Search and Sort Controls */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <div className="flex-1 w-full">
@@ -266,7 +260,6 @@ export default function InterviewerDashboard() {
         </div>
       </div>
 
-      {/* Candidates List */}
       <div className="space-y-4">
         {filteredAndSortedCandidates.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-12 text-center">

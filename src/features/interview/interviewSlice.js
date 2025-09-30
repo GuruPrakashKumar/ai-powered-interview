@@ -1,30 +1,26 @@
-// src/features/interview/interviewSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { generateInterviewQuestionsGemini } from "../../api/geminiClient";
 
 const initialState = {
-  questions: [],       // [{id, text, difficulty, duration}]
+  questions: [],
   currentIndex: 0,
-  answers: {},    // {id: "user answer"}
+  answers: {},
   timer: 0,
-  status: "idle", // idle | generating | running | finished
+  status: "idle",
   score: null,
   summary: null,
   error: null,
-  saved: false, // Add this flag to prevent duplicate saves
+  saved: false,
 };
 
-// Async thunk to generate questions
 export const generateQuestions = createAsyncThunk(
   'interview/generateQuestions',
   async () => {
     try {
       const arr = await generateInterviewQuestionsGemini();
-      console.log("Generated questions:", arr);
-      console.log("Array is array, arr.length:", Array.isArray(arr), arr?.length);
-      
+
       if (arr && Array.isArray(arr) && arr.length === 6) return arr;
-      
+
       // Fallback questions
       return [
         { id: 1, text: "What is React?", difficulty: "easy", duration: 20 },
@@ -46,14 +42,12 @@ const interviewSlice = createSlice({
   initialState,
   reducers: {
     startInterview(state) {
-      if (state.questions.length === 0) {
-        state.status = "generating";
-        return;
+      if (state.questions.length > 0) {
+        state.currentIndex = 0;
+        state.timer = state.questions[0]?.duration || 20;
+        state.status = "running";
+        state.saved = false; // Reset saved flag when starting new interview
       }
-      state.currentIndex = 0;
-      state.timer = state.questions[0]?.duration || 20;
-      state.status = "running";
-      state.saved = false; // Reset saved flag when starting new interview
     },
     tick(state) {
       if (state.status !== "running") return;
@@ -95,11 +89,8 @@ const interviewSlice = createSlice({
     markAsSaved(state) {
       state.saved = true;
     },
-    resetInterview(state) {
-      return {
-        ...initialState,
-        questions: state.questions, // Keep generated questions for potential reuse
-      };
+    resetInterview: () => {
+      return initialState;
     },
   },
   extraReducers: (builder) => {
@@ -117,7 +108,7 @@ const interviewSlice = createSlice({
       .addCase(generateQuestions.rejected, (state, action) => {
         state.status = "idle";
         state.error = action.error.message;
-        // Use fallback questions
+        // fallback questions
         state.questions = [
           { id: 1, text: "What is React?", difficulty: "easy", duration: 20 },
           { id: 2, text: "Explain useState in React.", difficulty: "easy", duration: 20 },
@@ -131,14 +122,14 @@ const interviewSlice = createSlice({
   },
 });
 
-export const { 
-  startInterview, 
-  tick, 
-  submitAnswer, 
-  nextQuestion, 
-  finishInterview, 
+export const {
+  startInterview,
+  tick,
+  submitAnswer,
+  nextQuestion,
+  finishInterview,
   markAsSaved,
-  resetInterview 
+  resetInterview
 } = interviewSlice.actions;
 
 export default interviewSlice.reducer;

@@ -6,7 +6,6 @@ export default function TimerDisplay() {
 
   if (status !== "running") return null;
 
-  // pick a color based on urgency
   let color = "text-green-600";
   if (timer <= 10) color = "text-red-600 font-bold";
   else if (timer <= 20) color = "text-orange-500";
