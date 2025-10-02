@@ -1,16 +1,34 @@
-# React + Vite
+##  Installation & Setup
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Clone the Repository
 
-Currently, two official plugins are available:
+cd ai-powered-interview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+npm install
 
-## React Compiler
+npm run dev
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Open http://localhost:5173
+ in your browser.
 
-## Expanding the ESLint configuration
+ ## Usage Flow
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1) Upload your resume (PDF).
+2) Chatbot asks for missing fields (if any).
+3) Once profile is complete → interview starts.
+4) AI generates 6 questions (2 easy, 2 medium, 2 hard).
+5) Each question shows up in chat with a countdown timer.
+6) Type your answer → saved in local storage.
+7) If timer runs out, answer auto-submits.
+8) Any time if candiate reloads, or closes and reopens tab the session is restored and a welcome back modal shows.
+9) After the last question → AI scores answers and summarizes.
+10) Final feedback, score and chat history appears in dashboard tab.
+
+## Demo Video Link
+
+https://drive.google.com/file/d/16CHQnBhaioLnM7z2iNwr4YjuriKsc6rL/view?usp=drive_link
+
+## Demo live url
+
+https://ai-powered-interview-dusky.vercel.app/
+
